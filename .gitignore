@@ -1,2 +1,9 @@
+# Intelij IDEA
 .idea
 out
+
+# VisualStudioCode
+.history
+
+# Composer
+vendor
