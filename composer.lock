@@ -201,16 +201,16 @@
         },
         {
             "name": "pocketmine/pocketmine-mp",
-            "version": "3.6.2",
+            "version": "3.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pmmp/PocketMine-MP.git",
-                "reference": "a8dab2520109c50aa8df0f28db599a65a73beb69"
+                "reference": "2f43b054de6fa5594f0170ae6cd68f326c21bd33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pmmp/PocketMine-MP/zipball/a8dab2520109c50aa8df0f28db599a65a73beb69",
-                "reference": "a8dab2520109c50aa8df0f28db599a65a73beb69",
+                "url": "https://api.github.com/repos/pmmp/PocketMine-MP/zipball/2f43b054de6fa5594f0170ae6cd68f326c21bd33",
+                "reference": "2f43b054de6fa5594f0170ae6cd68f326c21bd33",
                 "shasum": ""
             },
             "require": {
@@ -261,10 +261,10 @@
             "description": "A server software for Minecraft: Pocket Edition written in PHP",
             "homepage": "https://pmmp.io",
             "support": {
-                "source": "https://github.com/pmmp/PocketMine-MP/tree/3.6.2",
+                "source": "https://github.com/pmmp/PocketMine-MP/tree/3.6.3",
                 "issues": "https://github.com/pmmp/PocketMine-MP/issues"
             },
-            "time": "2019-02-14T17:15:19+00:00"
+            "time": "2019-02-22T18:07:00+00:00"
         },
         {
             "name": "pocketmine/raklib",
