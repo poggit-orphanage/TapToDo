@@ -11,17 +11,32 @@ use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\Config;
 
+/*
+ * TapToDo v3.0.0 Plan:
+ *
+ * I (Jack Honour/Jackthehack21) have taken up the project and hopefully making it even better for
+ * you guys to use, check below for whats planned and make a issue if you want to see something added !
+ *
+ * [ ] - Priority - Description
+ * ----------------------------
+ * [ ] - High - Rewrite the order of execution when using commands.
+ * [ ] - High - Change how data is stored (config is not ideal) probably sqlite.
+ * [ ] - Low - Create help file for use of commands and all prefix's eg %pow, %p, %n
+ *
+ */
+
 class TapToDo extends PluginBase implements CommandExecutor, Listener{
     public $sessions;
     /** @var  Block[] */
     public $blocks;
     /** @var  Config */
     private $blocksConfig;
+
     public function onEnable(){
         $this->sessions = [];
         $this->blocks = [];
-        $this->saveResource("blocks.yml");
-        $this->blocksConfig = (new ConfigUpdater(new Config($this->getDataFolder() . "blocks.yml", Config::YAML, array()), $this))->checkConfig();
+        $this->blocksConfig = (new ConfigUpdater(new Config($this->getDataFolder() . "blocks.yml", Config::YAML, ["version" => 1, "blocks" => []]), $this))->checkConfig();
+        //todo sqlite.
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         $this->parseBlockData();
     }
@@ -108,6 +123,7 @@ class TapToDo extends PluginBase implements CommandExecutor, Listener{
             if($sender instanceof Player){
                 if(isset($args[0])){
                     if($sender->hasPermission("taptodo.command." . $args[0])){
+                        //todo verify args here.
                         $this->sessions[$sender->getName()] = $args;
                         $sender->sendMessage("Tap a block to complete action...");
                         return true;
@@ -123,7 +139,7 @@ class TapToDo extends PluginBase implements CommandExecutor, Listener{
                 return true;
             }
         }
-        return true;
+        return false;
     }
     public function onInteract(PlayerInteractEvent $event){
         if(isset($this->sessions[$event->getPlayer()->getName()])){
@@ -131,7 +147,7 @@ class TapToDo extends PluginBase implements CommandExecutor, Listener{
             switch($args[0]){
                 case "add":
                     if(isset($args[1])){
-                        if(($b = $this->getBlock($event->getBlock(), null, null, null)) instanceof Block){
+                        if(($b = $this->getBlock($event->getBlock())) instanceof Block){
                             array_shift($args);
                             $b->addCommand(implode(" ", $args));
                             $event->getPlayer()->sendMessage("Command added.");
@@ -143,12 +159,12 @@ class TapToDo extends PluginBase implements CommandExecutor, Listener{
                         }
                     }
                     else{
-                        $event->getPlayer()->sendMessage("You must specify a command.");
+                        $event->getPlayer()->sendMessage("You must specify a command, eg /t add give %p 35");
                     }
                     break;
                 case "del":
                     if(isset($args[1])){
-                        if(($b = $this->getBlock($event->getBlock(), null, null, null)) instanceof Block){
+                        if(($b = $this->getBlock($event->getBlock())) instanceof Block){
                             array_shift($args);
                             if(($b->deleteCommand(implode(" ", $args))) !== false){
                                 $event->getPlayer()->sendMessage("Command removed.");
@@ -163,11 +179,11 @@ class TapToDo extends PluginBase implements CommandExecutor, Listener{
                         }
                     }
                     else{
-                        $event->getPlayer()->sendMessage("You must specify a command.");
+                        $event->getPlayer()->sendMessage("You must specify a command, eg /t del give %p 35");
                     }
                     break;
                 case "delall":
-                    if(($b = $this->getBlock($event->getBlock(), null, null, null)) instanceof Block){
+                    if(($b = $this->getBlock($event->getBlock())) instanceof Block){
                         $this->deleteBlock($b);
                         $event->getPlayer()->sendMessage("Block deleted.");
                     }
@@ -177,7 +193,7 @@ class TapToDo extends PluginBase implements CommandExecutor, Listener{
                     break;
                 case "name":
                     if(isset($args[1])){
-                        if(($b = $this->getBlock($event->getBlock(), null, null, null)) instanceof Block){
+                        if(($b = $this->getBlock($event->getBlock())) instanceof Block){
                             $b->setName($args[1]);
                             $event->getPlayer()->sendMessage("Block named.");
                         }
@@ -186,11 +202,11 @@ class TapToDo extends PluginBase implements CommandExecutor, Listener{
                         }
                     }
                     else{
-                        $event->getPlayer()->sendMessage("You need to specify a name.");
+                        $event->getPlayer()->sendMessage("You need to specify a name, eg /t name GiveBlock");
                     }
                     break;
                 case "list":
-                    if(($b = $this->getBlock($event->getBlock(), null, null, null)) instanceof Block){
+                    if(($b = $this->getBlock($event->getBlock())) instanceof Block){
                         foreach($b->getCommands() as $cmd){
                             $event->getPlayer()->sendMessage($cmd);
                         }
@@ -203,7 +219,7 @@ class TapToDo extends PluginBase implements CommandExecutor, Listener{
             unset($this->sessions[$event->getPlayer()->getName()]);
         }
         else{
-            if(($b = $this->getBlock($event->getBlock(), null, null, null)) instanceof Block && $event->getPlayer()->hasPermission("taptodo.tap")){
+            if(($b = $this->getBlock($event->getBlock())) instanceof Block && $event->getPlayer()->hasPermission("taptodo.tap")){
                 $b->executeCommands($event->getPlayer());
             }
         }
@@ -226,19 +242,24 @@ class TapToDo extends PluginBase implements CommandExecutor, Listener{
     }
 
     /**
-     * @param $x
-     * @param $y
-     * @param $z
-     * @param $level
-     * @return Block
+     * @param int $x
+     * @param int $y
+     * @param int $z
+     * @param string $level
+     * @return Block|bool
      */
-    public function getBlock($x, $y, $z, $level){
-        if($x instanceof Position) return (isset($this->blocks[$x->getX() . ":" . $x->getY() . ":" . $x->getZ() . ":" . $x->getLevel()->getName()]) ? $this->blocks[$x->getX() . ":" . $x->getY() . ":" . $x->getZ() . ":" . $x->getLevel()->getName()] : false);
-        else return (isset($this->blocks[$x . ":" . $y . ":" . $z . ":" . $level]) ? $this->blocks[$x . ":" . $y . ":" . $z . ":" . $level] : false);
+    public function getBlockByPos(int $x, int $y, int $z, string $level){
+        return (isset($this->blocks[$x . ":" . $y . ":" . $z . ":" . $level]) ? $this->blocks[$x . ":" . $y . ":" . $z . ":" . $level] : false);
     }
+
     /**
-     *
+     * @param Position $block
+     * @return Block|bool
      */
+    public function getBlock(Position $block){
+        return $this->getBlockByPos($block->getX(),$block->getY(),$block->getZ(),$block->getLevel()->getName());
+    }
+
     public function parseBlockData(){
         $this->blocks = [];
         foreach($this->blocksConfig->get("blocks") as $i => $block){
@@ -290,7 +311,7 @@ class TapToDo extends PluginBase implements CommandExecutor, Listener{
      *
      */
     public function onDisable(){
-        $this->getLogger()->info("Saving blocks...");
+        $this->getLogger()->debug("Saving blocks...");
         foreach($this->blocks as $block){
             $this->saveBlock($block);
         }

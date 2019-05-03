@@ -5,15 +5,16 @@ use pocketmine\level\Position;
 use pocketmine\Player;
 
 class Block{
-    /** @var  Command[] */
+    /** @var Command[] */
     private $commands;
-    /** @var  Position */
+    /** @var Position */
     private $position;
     /** @var mixed */
     private $name;
     /** @var TapToDo  */
     private $plugin;
     public $id;
+
     public function __construct(Position $position, array $commands, TapToDo $main, $id, $name = false){
         $this->position = $position;
         $this->commands = [];
@@ -67,18 +68,14 @@ class Block{
 
     /**
      * @return Position
-     * @deprecated
      */
-    public function getPos(): Position{
-        return $this->position;
-    }
     public function getPosition(): Position{
         return $this->position;
     }
     public function toArray(): array{
         $arr = [
             'x' => $this->getPosition()->getX(),
-            'y' => $this->getPosition()->getY(),
+            'y' => $this->getPosition()->getY(), //todo y in config is "y" *thinks heavily*
             'z' => $this->getPosition()->getZ(),
             'level' => $this->getPosition()->getLevel()->getName(),
             'commands' => $this->getCommands()

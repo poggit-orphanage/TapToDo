@@ -10,7 +10,7 @@ class Command {
     const AS_PLAYER_TYPE = 1;
     const AS_OP_TYPE = 2;
 
-    /** @var  mixed */
+    /** @var mixed */
     private $originalCommand;
     /** @var mixed */
     private $compiledCommand;
@@ -71,7 +71,7 @@ class Command {
     }
 
     /**
-     * @return null
+     * @return null|mixed
      */
     public function getCompiledCommand(){
         return $this->compiledCommand;

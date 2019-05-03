@@ -1,13 +1,13 @@
 name: TapToDo
 main: taptodo\TapToDo
-version: 2.3.0
+version: 2.4.0
 author: Falk
-api: [3.0.0-ALPHA9]
+api: [3.0.0]
 load: POSTWORLD
 commands:
  t:
   permission: taptodo.command
-  description: TapToDo command!
+  description: TapToDo command
   usage: /t <add <command> / del <command> / delall / name / list>
  tr:
   permission: taptodo.remote
@@ -36,6 +36,9 @@ permissions:
      taptodo.command.list:
       default: op
       description: List commands on a block
+   taptodo.remote:
+    default: op
+    description: Use remote block management
    taptodo.tap:
     default: true
     description: Use taptodo blocks
