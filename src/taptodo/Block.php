@@ -68,6 +68,14 @@ class Block{
 
     /**
      * @return Position
+     * @deprecated see getPosition(), Will be removed in 3.0
+     */
+    public function getPos(): Position{
+        return $this->position;
+    }
+
+    /**
+     * @return Position
      */
     public function getPosition(): Position{
         return $this->position;
